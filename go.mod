@@ -1,4 +1,4 @@
-module github.com/kelindar/tile
+module github.com/rywk/tile
 
 go 1.19
 
