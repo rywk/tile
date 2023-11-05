@@ -404,33 +404,36 @@ func (c Tile[T]) Range(fn func(T) error) error {
 }
 
 // Add adds object to the set
-func (c Tile[T]) MoveTo(cd Tile[T], v T) {
+func (c Tile[T]) MoveTo(cd Tile[T], v T, id uint32) {
 	c.data.delObjectOnly(c.grid, c.idx, v)
 	cd.data.addObjectOnly(c.grid, c.idx, v)
 	if cd.data.IsObserved() {
 		cd.grid.observers.Notify(cd.data.point, &Update[T]{
-			Point: pointOf(cd.data.point, cd.idx),
-			Moved: v,
+			Point:   pointOf(cd.data.point, cd.idx),
+			Moved:   v,
+			Emmiter: id,
 		})
 	}
 }
 
-func (c Tile[T]) Spawn(v T) {
+func (c Tile[T]) Spawn(v T, id uint32) {
 	c.data.addObjectOnly(c.grid, c.idx, v)
 	if c.data.IsObserved() {
 		c.grid.observers.Notify(c.data.point, &Update[T]{
 			Point:   pointOf(c.data.point, c.idx),
 			Spawned: v,
+			Emmiter: id,
 		})
 	}
 }
 
-func (c Tile[T]) Despawn(v T) {
+func (c Tile[T]) Despawn(v T, id uint32) {
 	c.data.delObjectOnly(c.grid, c.idx, v)
 	if c.data.IsObserved() {
 		c.grid.observers.Notify(c.data.point, &Update[T]{
 			Point:     pointOf(c.data.point, c.idx),
 			Despawned: v,
+			Emmiter:   id,
 		})
 	}
 }

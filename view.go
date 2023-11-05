@@ -17,6 +17,7 @@ type Update[T comparable] struct {
 	Moved     T
 	Spawned   T
 	Despawned T
+	Emmiter   uint32
 }
 
 // View represents a view which can monitor a collection of tiles.
