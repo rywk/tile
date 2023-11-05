@@ -340,6 +340,29 @@ func (p *page[T]) delObject(grid *Grid[T], idx uint8, object T) {
 	}
 }
 
+// addObject adds object to the set
+func (p *page[T]) addObjectOnly(grid *Grid[T], idx uint8, object T) {
+	p.Lock()
+
+	// Lazily initialize the map, as most pages might not have anything stored
+	// in them (e.g. water or empty tile)
+	if p.state == nil {
+		p.state = make(map[T]uint8)
+	}
+
+	p.state[object] = uint8(idx)
+	p.Unlock()
+}
+
+// delObject removes the object from the set
+func (p *page[T]) delObjectOnly(grid *Grid[T], idx uint8, object T) {
+	p.Lock()
+	if p.state != nil {
+		delete(p.state, object)
+	}
+	p.Unlock()
+}
+
 // ---------------------------------- Tile Cursor ----------------------------------
 
 // Tile represents an iterator over all state objects at a particular location.
@@ -378,6 +401,38 @@ func (c Tile[T]) Range(fn func(T) error) error {
 		}
 	}
 	return nil
+}
+
+// Add adds object to the set
+func (c Tile[T]) MoveTo(cd Tile[T], v T) {
+	c.data.delObjectOnly(c.grid, c.idx, v)
+	cd.data.addObjectOnly(c.grid, c.idx, v)
+	if cd.data.IsObserved() {
+		cd.grid.observers.Notify(cd.data.point, &Update[T]{
+			Point: pointOf(cd.data.point, cd.idx),
+			Moved: v,
+		})
+	}
+}
+
+func (c Tile[T]) Spawn(v T) {
+	c.data.addObjectOnly(c.grid, c.idx, v)
+	if c.data.IsObserved() {
+		c.grid.observers.Notify(c.data.point, &Update[T]{
+			Point:   pointOf(c.data.point, c.idx),
+			Spawned: v,
+		})
+	}
+}
+
+func (c Tile[T]) Despawn(v T) {
+	c.data.delObjectOnly(c.grid, c.idx, v)
+	if c.data.IsObserved() {
+		c.grid.observers.Notify(c.data.point, &Update[T]{
+			Point:     pointOf(c.data.point, c.idx),
+			Despawned: v,
+		})
+	}
 }
 
 // Add adds object to the set

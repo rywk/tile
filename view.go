@@ -9,11 +9,14 @@ import (
 
 // Update represents a tile update notification.
 type Update[T comparable] struct {
-	Point       // The tile location
-	Old   Value // Old tile value
-	New   Value // New tile value
-	Add   T     // An object was added to the tile
-	Del   T     // An object was removed from the tile
+	Point           // The tile location
+	Old       Value // Old tile value
+	New       Value // New tile value
+	Add       T     // An object was added to the tile
+	Del       T     // An object was removed from the tile
+	Moved     T
+	Spawned   T
+	Despawned T
 }
 
 // View represents a view which can monitor a collection of tiles.

@@ -143,6 +143,8 @@ func TestStateUpdates(t *testing.T) {
 	assert.NotNil(t, v)
 	assert.Equal(t, 100, int(c))
 
+	cursor2, _ := v.At(6, 6)
+
 	// Update a tile in view
 	cursor, _ := v.At(5, 5)
 	cursor.Write(Value(0xF0))
@@ -167,6 +169,25 @@ func TestStateUpdates(t *testing.T) {
 		Old:   Value(0xF0),
 		New:   Value(0xF0),
 		Del:   "A",
+	}, <-v.Inbox)
+
+	cursor.Spawn("A")
+	assert.Equal(t, Update[string]{
+		Point:   At(5, 5),
+		Spawned: "A",
+	}, <-v.Inbox)
+
+	// Delete an object from an observed tile
+	cursor.MoveTo(cursor2, "A")
+	assert.Equal(t, Update[string]{
+		Point: At(6, 6),
+		Moved: "A",
+	}, <-v.Inbox)
+
+	cursor2.Despawn("A")
+	assert.Equal(t, Update[string]{
+		Point:     At(6, 6),
+		Despawned: "A",
 	}, <-v.Inbox)
 
 	// Mask a tile in view
