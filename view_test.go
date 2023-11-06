@@ -41,7 +41,7 @@ func BenchmarkView(b *testing.B) {
 		b.ReportAllocs()
 		b.ResetTimer()
 		for n := 0; n < b.N; n++ {
-			v.MoveAt(locs[n%2], nil)
+			v.MoveAt(locs[n%2], nil, nil)
 		}
 	})
 }
@@ -57,17 +57,17 @@ func TestView(t *testing.T) {
 
 	// Resize to 10x10
 	c = counter(0)
-	v.Resize(NewRect(0, 0, 9, 9), c.count)
+	v.Resize(NewRect(0, 0, 9, 9), c.count, nil)
 	assert.Equal(t, 100, int(c))
 
 	// Move down-right
 	c = counter(0)
-	v.MoveBy(2, 2, c.count)
+	v.MoveBy(2, 2, c.count, nil)
 	assert.Equal(t, 36, int(c))
 
 	// Move at location
 	c = counter(0)
-	v.MoveAt(At(4, 4), c.count)
+	v.MoveAt(At(4, 4), c.count, nil)
 	assert.Equal(t, 36, int(c))
 
 	// Each

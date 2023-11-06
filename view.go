@@ -30,7 +30,7 @@ type View[T comparable] struct {
 }
 
 // Resize resizes the viewport.
-func (v *View[T]) Resize(box Rect, fn func(Point, Tile[T])) {
+func (v *View[T]) Resize(box Rect, fnNew, fnOld func(Point, Tile[T])) {
 	owner := v.Grid // The parent map
 	prev := v.rect  // Previous bounding box
 	v.rect = box    // New bounding box
@@ -42,6 +42,14 @@ func (v *View[T]) Resize(box Rect, fn func(Point, Tile[T])) {
 				if owner.observers.Unsubscribe(page.point, v) {
 					page.SetObserved(false) // Mark the page as not being observed
 				}
+			}
+			// Callback for each tile left out the view
+			if fnOld != nil {
+				page.Each(v.Grid, func(p Point, v Tile[T]) {
+					if prev.Contains(p) && !box.Contains(p) {
+						fnOld(p, v)
+					}
+				})
 			}
 		})
 	}
@@ -55,10 +63,10 @@ func (v *View[T]) Resize(box Rect, fn func(Point, Tile[T])) {
 		}
 
 		// Callback for each new tile in the view
-		if fn != nil {
+		if fnNew != nil {
 			page.Each(v.Grid, func(p Point, v Tile[T]) {
 				if !prev.Contains(p) && box.Contains(p) {
-					fn(p, v)
+					fnNew(p, v)
 				}
 			})
 		}
@@ -66,20 +74,20 @@ func (v *View[T]) Resize(box Rect, fn func(Point, Tile[T])) {
 }
 
 // MoveBy moves the viewport towards a particular direction.
-func (v *View[T]) MoveBy(x, y int16, fn func(Point, Tile[T])) {
+func (v *View[T]) MoveBy(x, y int16, fnNew, fnOld func(Point, Tile[T])) {
 	v.Resize(Rect{
 		Min: v.rect.Min.Add(At(x, y)),
 		Max: v.rect.Max.Add(At(x, y)),
-	}, fn)
+	}, fnNew, fnOld)
 }
 
 // MoveAt moves the viewport to a specific coordinate.
-func (v *View[T]) MoveAt(nw Point, fn func(Point, Tile[T])) {
+func (v *View[T]) MoveAt(nw Point, fnNew, fnOld func(Point, Tile[T])) {
 	size := v.rect.Max.Subtract(v.rect.Min)
 	v.Resize(Rect{
 		Min: nw,
 		Max: nw.Add(size),
-	}, fn)
+	}, fnNew, fnOld)
 }
 
 // Each iterates over all of the tiles in the view.

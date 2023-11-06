@@ -155,7 +155,7 @@ func (m *Grid[T]) View(rect Rect, fn func(Point, Tile[T])) *View[T] {
 	}
 
 	// Call the resize method
-	view.Resize(rect, fn)
+	view.Resize(rect, fn, nil)
 	return view
 }
 
