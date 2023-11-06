@@ -453,6 +453,20 @@ func (c Tile[T]) Despawn(v T, id uint32, data interface{}) {
 }
 
 // Add adds object to the set
+func (c Tile[T]) SimpleMoveTo(cd Tile[T], v T) {
+	c.data.delObjectOnly(c.grid, c.idx, v)
+	cd.data.addObjectOnly(cd.grid, cd.idx, v)
+}
+
+func (c Tile[T]) SimpleSpawn(v T) {
+	c.data.addObjectOnly(c.grid, c.idx, v)
+}
+
+func (c Tile[T]) SimpleDespawn(v T) {
+	c.data.delObjectOnly(c.grid, c.idx, v)
+}
+
+// Add adds object to the set
 func (c Tile[T]) Add(v T) {
 	c.data.addObject(c.grid, c.idx, v)
 }
