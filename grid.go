@@ -452,6 +452,16 @@ func (c Tile[T]) Despawn(v T, id uint32, data interface{}) {
 	}
 }
 
+func (c Tile[T]) TriggerEvent(id uint32, data interface{}) {
+	if c.data.IsObserved() {
+		c.grid.observers.Notify(c.data.point, &Update[T]{
+			Point:   pointOf(c.data.point, c.idx),
+			Emmiter: id,
+			Data:    data,
+		})
+	}
+}
+
 // Add adds object to the set
 func (c Tile[T]) SimpleMoveTo(cd Tile[T], v T) {
 	c.data.delObjectOnly(c.grid, c.idx, v)
