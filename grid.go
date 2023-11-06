@@ -404,7 +404,7 @@ func (c Tile[T]) Range(fn func(T) error) error {
 }
 
 // Add adds object to the set
-func (c Tile[T]) MoveTo(cd Tile[T], v T, id uint32) {
+func (c Tile[T]) MoveTo(cd Tile[T], v T, id uint32, data interface{}) {
 	c.data.delObjectOnly(c.grid, c.idx, v)
 	cd.data.addObjectOnly(cd.grid, cd.idx, v)
 	if cd.data.IsObserved() {
@@ -412,38 +412,42 @@ func (c Tile[T]) MoveTo(cd Tile[T], v T, id uint32) {
 			Point:   pointOf(cd.data.point, cd.idx),
 			Moved:   v,
 			Emmiter: id,
+			Data:    data,
 		})
 	}
 }
 
-func (c Tile[T]) ChangeDirection(d uint32, id uint32) {
+func (c Tile[T]) ChangeDirection(d uint32, id uint32, data interface{}) {
 	if c.data.IsObserved() {
 		c.grid.observers.Notify(c.data.point, &Update[T]{
 			Point:   pointOf(c.data.point, c.idx),
 			Dir:     d,
 			Emmiter: id,
+			Data:    data,
 		})
 	}
 }
 
-func (c Tile[T]) Spawn(v T, id uint32) {
+func (c Tile[T]) Spawn(v T, id uint32, data interface{}) {
 	c.data.addObjectOnly(c.grid, c.idx, v)
 	if c.data.IsObserved() {
 		c.grid.observers.Notify(c.data.point, &Update[T]{
 			Point:   pointOf(c.data.point, c.idx),
 			Spawned: v,
 			Emmiter: id,
+			Data:    data,
 		})
 	}
 }
 
-func (c Tile[T]) Despawn(v T, id uint32) {
+func (c Tile[T]) Despawn(v T, id uint32, data interface{}) {
 	c.data.delObjectOnly(c.grid, c.idx, v)
 	if c.data.IsObserved() {
 		c.grid.observers.Notify(c.data.point, &Update[T]{
 			Point:     pointOf(c.data.point, c.idx),
 			Despawned: v,
 			Emmiter:   id,
+			Data:      data,
 		})
 	}
 }

@@ -171,7 +171,7 @@ func TestStateUpdates(t *testing.T) {
 		Del:   "A",
 	}, <-v.Inbox)
 
-	cursor.Spawn("A", 1)
+	cursor.Spawn("A", 1, nil)
 	assert.Equal(t, Update[string]{
 		Point:   At(5, 5),
 		Spawned: "A",
@@ -179,18 +179,25 @@ func TestStateUpdates(t *testing.T) {
 	}, <-v.Inbox)
 
 	// Delete an object from an observed tile
-	cursor.MoveTo(cursor2, "A", 1)
+	cursor.MoveTo(cursor2, "A", 1, nil)
 	assert.Equal(t, Update[string]{
 		Point:   At(6, 6),
 		Moved:   "A",
 		Emmiter: 1,
 	}, <-v.Inbox)
 
-	cursor2.Despawn("A", 1)
+	cursor2.Despawn("A", 1, nil)
 	assert.Equal(t, Update[string]{
 		Point:     At(6, 6),
 		Despawned: "A",
 		Emmiter:   1,
+	}, <-v.Inbox)
+
+	cursor2.ChangeDirection(1, 1, nil)
+	assert.Equal(t, Update[string]{
+		Point:   At(6, 6),
+		Dir:     1,
+		Emmiter: 1,
 	}, <-v.Inbox)
 
 	// Mask a tile in view
